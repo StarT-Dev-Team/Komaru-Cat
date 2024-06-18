@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Specification-Title: komarumod
+Specification-Vendor: komarumodsareus
+Specification-Version: 1
+Implementation-Title: forge-1.19-41.1.0-mdk
+Implementation-Version: 1.0.1
+Implementation-Vendor: komarumodsareus
+Implementation-Timestamp: 2023-04-08T01:54:08+0200
+

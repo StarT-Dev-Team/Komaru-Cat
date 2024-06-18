@@ -1,0 +1,40 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+}
+
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+    id 'org.spongepowered.mixin' version '0.7.+'
+}
+
+group = 'net.theiadraizer'
+version = '1.0-SNAPSHOT'
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+minecraft {
+    mappings channel: project.mcpMappingChannel, version: project.mcpMappingVersion
+}
+
+repositories {
+    mavenCentral()
+
+    maven {
+        name = 'GeckoLib'
+        url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content {
+            includeGroupByRegex("software\\.bernie.*")
+            includeGroup("com.eliotlash.mclib")
+        }
+    }
+}
+
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.modMcVersion}-${project.forgeVersion}"
+
+    implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${modMcVersion}:${geckolib_version}")
+    implementation("com.eliotlash.mclib:mclib:20")
+}
