@@ -1,4 +1,4 @@
-package net.theiadraizer.komarumod.entity;
+package net.theiadraizer.komarumod.registry;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -8,14 +8,11 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import net.theiadraizer.komarumod.entity.custom.KomaruEntity;
+import net.theiadraizer.komarumod.entity.KomaruEntity;
 
-public class ModEntityTypes {
+public class KomaruEntityTypes {
     public static final DeferredRegister<EntityType<?>> ENTITY_TYPES;
     public static final RegistryObject<EntityType<KomaruEntity>> KOMARU;
-
-    public ModEntityTypes() {
-    }
 
     public static void register(IEventBus eventBus) {
         ENTITY_TYPES.register(eventBus);

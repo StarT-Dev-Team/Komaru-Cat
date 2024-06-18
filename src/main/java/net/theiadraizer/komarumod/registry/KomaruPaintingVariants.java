@@ -1,4 +1,4 @@
-package net.theiadraizer.komarumod.painting;
+package net.theiadraizer.komarumod.registry;
 
 import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -6,7 +6,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-public class ModPaintings {
+public class KomaruPaintingVariants {
     public static final DeferredRegister<PaintingVariant> PAINTING_VARIANTS;
     public static final RegistryObject<PaintingVariant> MEDUSA;
     public static final RegistryObject<PaintingVariant> KOMARU_COMPRESSED;
@@ -16,9 +16,6 @@ public class ModPaintings {
     public static final RegistryObject<PaintingVariant> KOMARU_SLEEP;
     public static final RegistryObject<PaintingVariant> KOMARU_GOD;
     public static final RegistryObject<PaintingVariant> KOMARU_FACE;
-
-    public ModPaintings() {
-    }
 
     public static void register(IEventBus eventBus) {
         PAINTING_VARIANTS.register(eventBus);

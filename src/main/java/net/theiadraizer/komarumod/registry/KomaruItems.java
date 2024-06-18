@@ -1,4 +1,4 @@
-package net.theiadraizer.komarumod.item;
+package net.theiadraizer.komarumod.registry;
 
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
@@ -12,16 +12,16 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.theiadraizer.komarumod.KomaruMod;
-import net.theiadraizer.komarumod.entity.ModEntityTypes;
 
-@Mod.EventBusSubscriber(modid = KomaruMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public class ModItems {
+@Mod.EventBusSubscriber(
+        modid = KomaruMod.MOD_ID,
+        bus = Mod.EventBusSubscriber.Bus.MOD,
+        value = Dist.CLIENT
+)
+public class KomaruItems {
     public static final DeferredRegister<Item> ITEMS;
     public static final RegistryObject<Item> KOMARU_POWDER;
     public static final RegistryObject<Item> KOMARU_SPAWN_EGG;
-
-    public ModItems() {
-    }
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);
@@ -30,7 +30,7 @@ public class ModItems {
     static {
         ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, "komarumod");
         KOMARU_POWDER = ITEMS.register("komaru_powder", () -> new Item((new Item.Properties()))); //.tab(CreativeModeTab.TAB_MISC));
-        KOMARU_SPAWN_EGG = ITEMS.register("komaru_spawn_egg", () -> new ForgeSpawnEggItem(ModEntityTypes.KOMARU, 2274113, 1667886, new Item.Properties()));
+        KOMARU_SPAWN_EGG = ITEMS.register("komaru_spawn_egg", () -> new ForgeSpawnEggItem(KomaruEntityTypes.KOMARU, 2274113, 1667886, new Item.Properties()));
     }
 
     @SubscribeEvent

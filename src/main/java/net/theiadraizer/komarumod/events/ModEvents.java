@@ -1,13 +1,13 @@
 package net.theiadraizer.komarumod.events;
 
-import net.minecraft.world.entity.EntityType;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.theiadraizer.komarumod.entity.ModEntityTypes;
-import net.theiadraizer.komarumod.entity.custom.KomaruEntity;
+import net.theiadraizer.komarumod.registry.KomaruEntityTypes;
+import net.theiadraizer.komarumod.entity.KomaruEntity;
 
+// TODO - Refactor this?
 public class ModEvents {
     public ModEvents() {
     }
@@ -29,7 +29,7 @@ public class ModEvents {
 
             @SubscribeEvent
             public static void entityAttributeEvent(EntityAttributeCreationEvent event) {
-                event.put((EntityType)ModEntityTypes.KOMARU.get(), KomaruEntity.setAttributes());
+                event.put(KomaruEntityTypes.KOMARU.get(), KomaruEntity.setAttributes());
             }
         }
     }

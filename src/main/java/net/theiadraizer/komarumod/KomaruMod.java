@@ -13,10 +13,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.theiadraizer.komarumod.entity.ModEntityTypes;
-import net.theiadraizer.komarumod.entity.client.KomaruRenderer;
-import net.theiadraizer.komarumod.item.ModItems;
-import net.theiadraizer.komarumod.painting.ModPaintings;
+import net.theiadraizer.komarumod.registry.KomaruEntityTypes;
+import net.theiadraizer.komarumod.client.renderer.entity.KomaruRenderer;
+import net.theiadraizer.komarumod.registry.KomaruItems;
+import net.theiadraizer.komarumod.registry.KomaruPaintingVariants;
 import org.slf4j.Logger;
 import software.bernie.geckolib.GeckoLib;
 
@@ -27,18 +27,21 @@ public class KomaruMod {
 
     public KomaruMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        ModItems.register(modEventBus);
-        ModEntityTypes.register(modEventBus);
-        ModPaintings.register(modEventBus);
+        KomaruItems.register(modEventBus);
+        KomaruEntityTypes.register(modEventBus);
+        KomaruPaintingVariants.register(modEventBus);
         GeckoLib.initialize();
         modEventBus.addListener(this::commonSetup);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            SpawnPlacements.register((EntityType)ModEntityTypes.KOMARU.get(), SpawnPlacements.Type.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Animal::checkAnimalSpawnRules);
-        });
+        // TODO - Fix deprecation
+        event.enqueueWork(() -> SpawnPlacements.register(
+                KomaruEntityTypes.KOMARU.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                Animal::checkAnimalSpawnRules));
     }
 
     @Mod.EventBusSubscriber(
@@ -51,7 +54,7 @@ public class KomaruMod {
 
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
-            EntityRenderers.register((EntityType)ModEntityTypes.KOMARU.get(), KomaruRenderer::new);
+            EntityRenderers.register(KomaruEntityTypes.KOMARU.get(), KomaruRenderer::new);
         }
     }
 }

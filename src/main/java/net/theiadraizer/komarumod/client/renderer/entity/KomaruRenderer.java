@@ -1,11 +1,12 @@
-package net.theiadraizer.komarumod.entity.client;
+package net.theiadraizer.komarumod.client.renderer.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import net.theiadraizer.komarumod.entity.custom.KomaruEntity;
+import net.theiadraizer.komarumod.client.model.entity.KomaruModel;
+import net.theiadraizer.komarumod.entity.KomaruEntity;
 import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
@@ -16,7 +17,7 @@ public class KomaruRenderer extends GeoEntityRenderer<KomaruEntity> {
         this.shadowRadius = 0.3F;
     }
 
-    public @NotNull ResourceLocation getTextureLocation(KomaruEntity instance) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull KomaruEntity animatable) {
         return new ResourceLocation("komarumod", "textures/entity/komaru_texture.png");
     }
 
