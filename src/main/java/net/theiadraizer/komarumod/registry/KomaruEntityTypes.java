@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.theiadraizer.komarumod.KomaruMod;
 import net.theiadraizer.komarumod.entity.KomaruEntity;
 
 public class KomaruEntityTypes {
@@ -19,10 +20,10 @@ public class KomaruEntityTypes {
     }
 
     static {
-        ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, "komarumod");
+        ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, KomaruMod.MOD_ID);
         KOMARU = ENTITY_TYPES.register("komaru", () -> Builder
                 .of(KomaruEntity::new, MobCategory.CREATURE)
                 .sized(0.7F, 0.7F)
-                .build((new ResourceLocation("komarumod", "komaru")).toString()));
+                .build(new ResourceLocation(KomaruMod.MOD_ID, "komaru").toString()));
     }
 }

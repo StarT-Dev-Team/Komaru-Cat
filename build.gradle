@@ -13,11 +13,50 @@ plugins {
 group = 'net.theiadraizer'
 version = '1.0-SNAPSHOT'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
 
 minecraft {
     mappings channel: project.mcpMappingChannel, version: project.mcpMappingVersion
+
+    runs {
+        configureEach {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console_level', 'debug'
+
+            mods {
+                komarumod {
+                    source sourceSets.main
+                }
+            }
+        }
+
+        client {
+            property 'forge.enabledGameTestNamespaces', 'komarumod'
+        }
+
+        server {
+            property 'forge.enabledGameTestNamespaces', 'komarumod'
+            args '--nogui'
+        }
+
+        gameTestServer {
+            property 'forge.enabledGameTestNamespaces', 'komarumod'
+        }
+
+        data {
+            workingDirectory project.file('run-data')
+            args '--mod', 'komarumod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+        }
+    }
 }
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     mavenCentral()
@@ -37,4 +76,24 @@ dependencies {
 
     implementation fg.deobf("software.bernie.geckolib:geckolib-forge-${modMcVersion}:${geckolib_version}")
     implementation("com.eliotlash.mclib:mclib:20")
+}
+
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+            'Specification-Title'     : 'komarumod',
+            'Specification-Vendor'    : 'trulyno',
+            'Specification-Version'   : '1',
+            'Implementation-Title'    : project.name,
+            'Implementation-Version'  : project.jar.archiveVersion,
+            'Implementation-Vendor'   : 'trulyno',
+            'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    finalizedBy 'reobfJar'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
 }

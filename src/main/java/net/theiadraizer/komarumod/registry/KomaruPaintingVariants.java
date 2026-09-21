@@ -5,6 +5,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import net.theiadraizer.komarumod.KomaruMod;
 
 public class KomaruPaintingVariants {
     public static final DeferredRegister<PaintingVariant> PAINTING_VARIANTS;
@@ -22,7 +23,7 @@ public class KomaruPaintingVariants {
     }
 
     static {
-        PAINTING_VARIANTS = DeferredRegister.create(ForgeRegistries.PAINTING_VARIANTS, "komarumod");
+        PAINTING_VARIANTS = DeferredRegister.create(ForgeRegistries.PAINTING_VARIANTS, KomaruMod.MOD_ID);
         MEDUSA = PAINTING_VARIANTS.register("medusa", () -> new PaintingVariant(64, 64));
         KOMARU_COMPRESSED = PAINTING_VARIANTS.register("komaru_compressed", () -> new PaintingVariant(16, 32));
         KOMARU_CHONKY = PAINTING_VARIANTS.register("komaru_chonky", () -> new PaintingVariant(64, 64));

@@ -30,9 +30,17 @@ public class KomaruModel extends GeoModel<KomaruEntity> {
     public void setCustomAnimations(KomaruEntity animatable, long instanceId, AnimationState<KomaruEntity> animationState) {
         super.setCustomAnimations(animatable, instanceId, animationState);
         CoreGeoBone head = this.getAnimationProcessor().getBone("head");
-        EntityModelData extraData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
-        int unpausedMultiplier = Minecraft.getInstance().isPaused() && !animatable.shouldPlayAnimsWhileGamePaused() ? 0 : 1;
-        head.setRotX(extraData.headPitch() * Mth.DEG_TO_RAD * (float)unpausedMultiplier);
-        head.setRotY(extraData.netHeadYaw() * Mth.DEG_TO_RAD * (float)unpausedMultiplier);
+        if (head == null) {
+            return;
+        }
+
+        if (!animatable.isSleeping() && !animatable.isLying()) {
+            EntityModelData extraData = animationState.getData(DataTickets.ENTITY_MODEL_DATA);
+            int unpausedMultiplier = Minecraft.getInstance().isPaused() && !animatable.shouldPlayAnimsWhileGamePaused() ? 0 : 1;
+            if (extraData != null) {
+                head.setRotX(extraData.headPitch() * Mth.DEG_TO_RAD * (float) unpausedMultiplier);
+                head.setRotY(extraData.netHeadYaw() * Mth.DEG_TO_RAD * (float) unpausedMultiplier);
+            }
+        }
     }
 }
