@@ -2,7 +2,6 @@ package net.theiadraizer.komarumod.entity;
 
 import java.util.EnumSet;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -145,6 +144,11 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
     }
 
     @Override
+    public boolean causeFallDamage(float fallDistance, float multiplier, DamageSource source) {
+        return false;
+    }
+
+    @Override
     @Nonnull
     public InteractionResult mobInteract(Player player, @Nonnull InteractionHand hand) {
         var stack = player.getItemInHand(hand);
@@ -200,9 +204,7 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
             if (item == isItemForFollowing && hand == InteractionHand.MAIN_HAND) {
                 setFollowing(!this.isFollowing());
                 if (level.isClientSide) {
-                    assert Minecraft.getInstance().player != null;
-
-                    Minecraft.getInstance().player.sendSystemMessage(Component.literal("Komaru " + (this.isFollowing() ? "follow" : "unfollow") + " owner now"));
+                    player.displayClientMessage(Component.literal("Komaru " + (this.isFollowing() ? "follow" : "unfollow") + " owner now"), false);
                 }
 
                 return InteractionResult.SUCCESS;
