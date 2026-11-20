@@ -22,9 +22,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.LookControl;
 import net.minecraft.world.entity.ai.control.MoveControl;
-import net.minecraft.world.entity.ai.goal.BreedGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
-import net.minecraft.world.entity.ai.goal.FollowOwnerGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -37,6 +35,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
+import net.theiadraizer.komarumod.entity.goal.KomaruFollowOwnerGoal;
 import net.theiadraizer.komarumod.entity.goal.KomaruLieGoal;
 import net.theiadraizer.komarumod.entity.goal.KomaruRelaxOnOwnerGoal;
 import net.theiadraizer.komarumod.entity.goal.KomaruSitOnBlockGoal;
@@ -53,7 +52,6 @@ import javax.annotation.Nullable;
 
 public class KomaruEntity extends TamableAnimal implements GeoEntity {
     // Entity data
-    private static final EntityDataAccessor<Boolean> IS_SITTING = SynchedEntityData.defineId(KomaruEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_LYING = SynchedEntityData.defineId(KomaruEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_SLEEPING = SynchedEntityData.defineId(KomaruEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> IS_RABBIT = SynchedEntityData.defineId(KomaruEntity.class, EntityDataSerializers.BOOLEAN);
@@ -71,7 +69,6 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
     // State
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    FollowOwnerGoal followOwnerGoal = new FollowOwnerGoal(this, 1.0, 15.0F, 5.0F, false);
 
     public KomaruEntity(EntityType<? extends TamableAnimal> entityType, Level level) {
         super(entityType, level);
@@ -104,16 +101,16 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
     }
 
     protected void registerGoals() {
-        this.goalSelector.addGoal(5, new RabbitGoal());
-        this.goalSelector.addGoal(10, new BreedGoal(this, 0.8));
-        this.goalSelector.addGoal(2, new FloatGoal(this));
-        this.goalSelector.addGoal(3, new SleepGoal());
         this.goalSelector.addGoal(0, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 10.0F));
         this.goalSelector.addGoal(1, new KomaruRelaxOnOwnerGoal(this));
+        this.goalSelector.addGoal(2, new FloatGoal(this));
+        this.goalSelector.addGoal(2, new KomaruFollowOwnerGoal(this, 1.0, 15.0F, 5.0F, false, this));
+        this.goalSelector.addGoal(3, new SleepGoal());
+        this.goalSelector.addGoal(3, new LookAtPlayerGoal(this, Player.class, 10.0F));
         this.goalSelector.addGoal(3, new TemptGoal(this, 1.0, Ingredient.of(KomaruItems.KOMARU_POWDER.get()), false));
         this.goalSelector.addGoal(4, new KomaruLieGoal(this, 1.1, 8));
         this.goalSelector.addGoal(4, new RandomLookAroundGoal(this));
+        this.goalSelector.addGoal(5, new RabbitGoal());
         this.goalSelector.addGoal(6, new PanicGoal(this, 1.0));
         this.goalSelector.addGoal(7, new KomaruSitOnBlockGoal(this, 0.8));
         this.goalSelector.addGoal(8, new LeapAtTargetGoal(this, 0.3F));
@@ -157,27 +154,32 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
         var isItemForFollowing = Items.BOWL;
         var level = level();
 
-        if (!level.isClientSide && item == isItemForTaming) {
+        if (item == isItemForTaming) {
             if (isTame() && getHealth() < getMaxHealth()) {
-                heal(2.0F);
-                return InteractionResult.CONSUME;
+                if (!level.isClientSide) {
+                    heal(2.0F);
+                    usePlayerItem(player, hand, stack);
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             if (!isTame()) {
-                if (random.nextInt(3) == 0) {
-                    playSound(SoundEvents.CAT_PURR, 1.0F, 1.0F);
-                    super.tame(player);
-                    setOrderedToSit(true);
-                    setFollowing(true);
-                    navigation.recomputePath();
-                    setTarget(null);
-                    level.broadcastEntityEvent(this, (byte)7);
-                } else {
-                    level.broadcastEntityEvent(this, (byte)6);
-                }
+                if (!level.isClientSide) {
+                    if (random.nextInt(3) == 0) {
+                        playSound(SoundEvents.CAT_PURR, 1.0F, 1.0F);
+                        super.tame(player);
+                        setOrderedToSit(true);
+                        setFollowing(true);
+                        navigation.recomputePath();
+                        setTarget(null);
+                        level.broadcastEntityEvent(this, (byte) 7);
+                    } else {
+                        level.broadcastEntityEvent(this, (byte) 6);
+                    }
 
-                usePlayerItem(player, hand, stack);
-                return InteractionResult.CONSUME;
+                    usePlayerItem(player, hand, stack);
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
@@ -185,35 +187,41 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
             if (isTame()) {
                 playSound(SoundEvents.CAT_PURR, 1.0F, 1.0F);
 
-                for(int i = 0; i < 5; ++i) {
-                    double d0 = this.random.nextGaussian() * 0.02;
-                    double d1 = this.random.nextGaussian() * 0.02;
-                    double d2 = this.random.nextGaussian() * 0.02;
-                    level.addParticle(ParticleTypes.HEART, getRandomX(1.0), getEyeY() + 0.3, getRandomZ(1.0), d0, d1, d2);
+                if (level.isClientSide) {
+                    for (int i = 0; i < 5; ++i) {
+                        double d0 = this.random.nextGaussian() * 0.02;
+                        double d1 = this.random.nextGaussian() * 0.02;
+                        double d2 = this.random.nextGaussian() * 0.02;
+                        level.addParticle(ParticleTypes.HEART, getRandomX(1.0), getEyeY() + 0.3, getRandomZ(1.0), d0, d1, d2);
+                    }
+                } else {
+                    getNavigation().stop();
                 }
 
-                getNavigation().stop();
-                tickCount = 0;
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             this.playSound(SoundEvents.CAT_HISS, 1.0F, 1.0F);
+            return InteractionResult.sidedSuccess(level.isClientSide);
         }
 
         if (isTame() && !player.isShiftKeyDown()) {
             if (item == isItemForFollowing && hand == InteractionHand.MAIN_HAND) {
-                setFollowing(!this.isFollowing());
-                if (level.isClientSide) {
-                    player.displayClientMessage(Component.literal("Komaru " + (this.isFollowing() ? "follow" : "unfollow") + " owner now"), false);
+                if (!level.isClientSide) {
+                    boolean nextFollowing = !this.isFollowing();
+                    setFollowing(nextFollowing);
+                    player.displayClientMessage(Component.translatable(nextFollowing ? "message.komarumod.follow" : "message.komarumod.unfollow"), false);
                 }
 
-                return InteractionResult.SUCCESS;
+                return InteractionResult.sidedSuccess(level.isClientSide);
             }
 
             if (hand == InteractionHand.MAIN_HAND) {
-                clearStates();
-                setOrderedToSit(!isOrderedToSit());
-                return InteractionResult.SUCCESS;
+                if (!level.isClientSide) {
+                    clearStates();
+                    setOrderedToSit(!isOrderedToSit());
+                }
+                return InteractionResult.sidedSuccess(level.isClientSide);
             }
         }
 
@@ -222,11 +230,12 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
     public void readAdditionalSaveData(@Nonnull CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        setInSittingPose(tag.getBoolean("isSitting"));
         setLying(tag.getBoolean("isLying"));
         setRabbit(tag.getBoolean("isRabbit"));
         setSleeping(tag.getBoolean("isSleeping"));
-        setFollowing(tag.getBoolean("isFollowing"));
+        if (tag.contains("isFollowing")) {
+            setFollowing(tag.getBoolean("isFollowing"));
+        }
     }
 
     public @Nullable AgeableMob getBreedOffspring(@Nonnull ServerLevel level, @Nonnull AgeableMob mob) {
@@ -236,7 +245,6 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
     @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
-        entityData.define(IS_SITTING, false);
         entityData.define(IS_LYING, false);
         entityData.define(IS_RABBIT, false);
         entityData.define(IS_SLEEPING, false);
@@ -245,17 +253,14 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
     public void addAdditionalSaveData(@Nonnull CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.putBoolean("isLying", isLying());
+        tag.putBoolean("isRabbit", isRabbit());
+        tag.putBoolean("isSleeping", isSleeping());
         tag.putBoolean("isFollowing", isFollowing());
     }
 
     public void setFollowing(boolean isFollowing) {
         entityData.set(IS_FOLLOWING, isFollowing);
-
-        if (isFollowing()) {
-            goalSelector.addGoal(2, followOwnerGoal);
-        } else {
-            goalSelector.removeGoal(followOwnerGoal);
-        }
     }
 
     public boolean isFollowing() {
@@ -287,20 +292,20 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
     }
 
     private <E extends GeoAnimatable> PlayState handleAnimations(AnimationState<E> event) {
-        if (event.isMoving()) {
-            event.getController().setAnimation(WALKING_ANIM);
-        } else if (this.isInSittingPose()) {
-            event.getController().setAnimation(SITTING_ANIM);
-        } else if (this.isLying()) {
-            event.getController().setAnimation(LAYING_ANIM);
-        } else if (this.isSprinting()) {
+        if (this.isSprinting() && event.isMoving()) {
             event.getController().setAnimation(SPRINTING_ANIM);
-        } else if (this.isBaby()) {
-            event.getController().setAnimation(BABY_TRANSFORM_ANIM);
-        } else if (this.isRabbit()) {
-            event.getController().setAnimation(RABBIT_ANIM);
+        } else if (event.isMoving()) {
+            event.getController().setAnimation(WALKING_ANIM);
         } else if (this.isSleeping()) {
             event.getController().setAnimation(SLEEPING_ANIM);
+        } else if (this.isRabbit()) {
+            event.getController().setAnimation(RABBIT_ANIM);
+        } else if (this.isLying()) {
+            event.getController().setAnimation(LAYING_ANIM);
+        } else if (this.isInSittingPose()) {
+            event.getController().setAnimation(SITTING_ANIM);
+        } else if (this.isBaby()) {
+            event.getController().setAnimation(BABY_TRANSFORM_ANIM);
         } else {
             event.getController().setAnimation(IDLING_ANIM);
         }
@@ -338,17 +343,16 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
         }
     }
 
+    protected boolean hasShelter() {
+        BlockPos blockpos = this.blockPosition();
+        return !this.level().canSeeSky(blockpos) && this.getWalkTargetValue(blockpos) >= 0.0F;
+    }
+
     class RabbitGoal extends Goal {
         private static final int WAIT_TIME_BEFORE_RABBIT = reducedTickDelay(6000);
-        private int countdown;
         private static final int RABBIT_DURATION = reducedTickDelay(60);
+        private int countdown;
         private int rabbitTimer;
-
-        protected boolean hasShelter() {
-            final var komaru = KomaruEntity.this;
-            BlockPos blockpos = komaru.blockPosition();
-            return !komaru.level().canSeeSky(blockpos) && komaru.getWalkTargetValue(blockpos) >= 0.0F;
-        }
 
         public RabbitGoal() {
             this.countdown = KomaruEntity.this.random.nextInt(WAIT_TIME_BEFORE_RABBIT);
@@ -358,49 +362,42 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
         public boolean canUse() {
             final var komaru = KomaruEntity.this;
-            if (komaru.xxa == 0.0F && komaru.yya == 0.0F && komaru.zza == 0.0F) {
-                return !komaru.isRabbit() && (canRabbit() || canContinueToUse()) && !komaru.isInWater();
-            } else {
+            if (komaru.xxa != 0.0F || komaru.yya != 0.0F || komaru.zza != 0.0F || komaru.isInWater() || komaru.isOrderedToSit()) {
                 return false;
             }
+            return !komaru.isRabbit() && canRabbit();
         }
 
         public boolean canContinueToUse() {
-            return rabbitTimer > 0;
+            final var komaru = KomaruEntity.this;
+            return this.rabbitTimer > 0 && !komaru.isInWater() && !komaru.isOrderedToSit();
         }
 
         private boolean canRabbit() {
             if (countdown > 0) {
                 --countdown;
                 return false;
-            } else {
-                return !hasShelter();
             }
+            return !KomaruEntity.this.hasShelter();
         }
 
         public void stop() {
             this.rabbitTimer = 0;
             this.countdown = KomaruEntity.this.random.nextInt(WAIT_TIME_BEFORE_RABBIT);
-            this.rabbitTimer = 0;
             KomaruEntity.this.setRabbit(false);
         }
 
         public void start() {
             final var komaru = KomaruEntity.this;
+            this.rabbitTimer = RABBIT_DURATION;
             komaru.setRabbit(true);
             komaru.getNavigation().stop();
             komaru.getMoveControl().setWantedPosition(komaru.getX(), komaru.getY(), komaru.getZ(), 0.0);
         }
 
         public void tick() {
-            if (this.canRabbit()) {
-                ++this.rabbitTimer;
-                if (this.rabbitTimer >= RABBIT_DURATION) {
-                    KomaruEntity.this.setSleeping(false);
-                    this.rabbitTimer = 0;
-                }
-            } else {
-                this.rabbitTimer = 0;
+            if (this.rabbitTimer > 0) {
+                --this.rabbitTimer;
             }
         }
     }
@@ -411,12 +408,6 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
         private int countdown;
         private int sleepTimer;
 
-        protected boolean hasShelter() {
-            final var komaru = KomaruEntity.this;
-            BlockPos blockpos = komaru.blockPosition();
-            return !komaru.level().canSeeSky(blockpos) && komaru.getWalkTargetValue(blockpos) >= 0.0F;
-        }
-
         public SleepGoal() {
             this.countdown = KomaruEntity.this.random.nextInt(WAIT_TIME_BEFORE_SLEEP);
             this.sleepTimer = 0;
@@ -425,24 +416,23 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
         public boolean canUse() {
             final var komaru = KomaruEntity.this;
-            if (komaru.xxa == 0.0F && komaru.yya == 0.0F && komaru.zza == 0.0F) {
-                return !komaru.isSleeping() && (canSleep() || canContinueToUse()) && !komaru.isInWater();
-            } else {
+            if (komaru.xxa != 0.0F || komaru.yya != 0.0F || komaru.zza != 0.0F || komaru.isInWater() || komaru.isOrderedToSit()) {
                 return false;
             }
+            return !komaru.isSleeping() && canSleep();
         }
 
         public boolean canContinueToUse() {
-            return this.sleepTimer > 0;
+            final var komaru = KomaruEntity.this;
+            return this.sleepTimer > 0 && !komaru.isInWater() && !komaru.isOrderedToSit();
         }
 
         private boolean canSleep() {
             if (this.countdown > 0) {
                 --this.countdown;
                 return false;
-            } else {
-                return this.hasShelter() && !KomaruEntity.this.isInPowderSnow;
             }
+            return KomaruEntity.this.hasShelter() && !KomaruEntity.this.isInPowderSnow;
         }
 
         public void stop() {
@@ -453,22 +443,16 @@ public class KomaruEntity extends TamableAnimal implements GeoEntity {
 
         public void start() {
             final var komaru = KomaruEntity.this;
+            this.sleepTimer = SLEEP_DURATION;
             komaru.setSleeping(true);
             komaru.getNavigation().stop();
             komaru.getMoveControl().setWantedPosition(komaru.getX(), komaru.getY(), komaru.getZ(), 0.0);
         }
 
         public void tick() {
-            if (this.canSleep()) {
-                ++this.sleepTimer;
-                if (this.sleepTimer >= SLEEP_DURATION) {
-                    KomaruEntity.this.setSleeping(false);
-                    this.sleepTimer = 0;
-                }
-            } else {
-                this.sleepTimer = 0;
+            if (this.sleepTimer > 0) {
+                --this.sleepTimer;
             }
-
         }
     }
 

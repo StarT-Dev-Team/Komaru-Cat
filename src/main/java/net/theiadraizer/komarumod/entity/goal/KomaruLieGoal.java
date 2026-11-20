@@ -33,9 +33,10 @@ public class KomaruLieGoal extends MoveToBlockGoal {
     public void tick() {
         super.tick();
 
-        entity.clearStates();
         if (!isReachedTarget()) {
-            entity.clearStates();
+            if (entity.isLying()) {
+                entity.setLying(false);
+            }
         } else if (!entity.isLying()) {
             entity.setLying(true);
         }

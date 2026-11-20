@@ -12,7 +12,7 @@ public class KomaruPaintingVariants {
     public static final RegistryObject<PaintingVariant> MEDUSA;
     public static final RegistryObject<PaintingVariant> KOMARU_COMPRESSED;
     public static final RegistryObject<PaintingVariant> KOMARU_CHONKY;
-    public static final RegistryObject<PaintingVariant> KOMARU_TONGUE;
+    public static final RegistryObject<PaintingVariant> KOMARU_DRESS;
     public static final RegistryObject<PaintingVariant> KOMARU_HAT;
     public static final RegistryObject<PaintingVariant> KOMARU_SLEEP;
     public static final RegistryObject<PaintingVariant> KOMARU_GOD;
@@ -27,7 +27,7 @@ public class KomaruPaintingVariants {
         MEDUSA = PAINTING_VARIANTS.register("medusa", () -> new PaintingVariant(64, 64));
         KOMARU_COMPRESSED = PAINTING_VARIANTS.register("komaru_compressed", () -> new PaintingVariant(16, 32));
         KOMARU_CHONKY = PAINTING_VARIANTS.register("komaru_chonky", () -> new PaintingVariant(64, 64));
-        KOMARU_TONGUE = PAINTING_VARIANTS.register("komaru_dress", () -> new PaintingVariant(16, 16));
+        KOMARU_DRESS = PAINTING_VARIANTS.register("komaru_dress", () -> new PaintingVariant(16, 16));
         KOMARU_HAT = PAINTING_VARIANTS.register("komaru_hat", () -> new PaintingVariant(16, 32));
         KOMARU_SLEEP = PAINTING_VARIANTS.register("komaru_sleep", () -> new PaintingVariant(32, 32));
         KOMARU_GOD = PAINTING_VARIANTS.register("komaru_god", () -> new PaintingVariant(64, 64));

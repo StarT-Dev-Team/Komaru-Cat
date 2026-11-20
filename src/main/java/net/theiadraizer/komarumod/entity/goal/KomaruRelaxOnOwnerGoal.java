@@ -20,6 +20,7 @@ import net.minecraft.world.phys.AABB;
 import net.theiadraizer.komarumod.entity.KomaruEntity;
 
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.Objects;
 
 public class KomaruRelaxOnOwnerGoal extends Goal {
@@ -32,6 +33,7 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
 
     public KomaruRelaxOnOwnerGoal(KomaruEntity entity) {
         this.entity = entity;
+        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
     }
 
     public boolean canUse() {
@@ -84,7 +86,7 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
     public void stop() {
         entity.setLying(false);
         float f = entity.level().getTimeOfDay(1.0F);
-        if (ownerPlayer.getSleepTimer() >= 100 && (double) f > 0.77 && (double) f < 0.8 && (double) entity.level().getRandom().nextFloat() < 0.7) {
+        if (ownerPlayer != null && ownerPlayer.getSleepTimer() >= 100 && (double) f > 0.77 && (double) f < 0.8 && (double) entity.level().getRandom().nextFloat() < 0.7) {
             giveMorningGift();
         }
         onBedTicks = 0;
@@ -92,13 +94,16 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
     }
 
     public void giveMorningGift() {
+        if (!(entity.level() instanceof ServerLevel level)) {
+            return;
+        }
+
         RandomSource random = this.entity.getRandom();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         pos.set(this.entity.blockPosition());
         entity.randomTeleport(pos.getX() + random.nextInt(11) - 5, pos.getY() + random.nextInt(5) - 2, pos.getZ() + random.nextInt(11) - 5, false);
         pos.set(this.entity.blockPosition());
 
-        ServerLevel level = (ServerLevel) entity.level();
         LootTable lootTable = Objects.requireNonNull(level.getServer()).getLootData().getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
         LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, this.entity.position())
@@ -107,12 +112,12 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
 
         lootTable.getRandomItems(lootParams)
                 .forEach(stack -> {
-                    var entity = new ItemEntity(level,
+                    var itemEntity = new ItemEntity(level,
                             (double) pos.getX() - (double) Mth.sin(this.entity.yBodyRot * 0.017453292F),
                             pos.getY(),
                             (double) pos.getZ() + (double) Mth.cos(this.entity.yBodyRot * 0.017453292F),
                             stack);
-                    entity.level().addFreshEntity(entity);
+                    level.addFreshEntity(itemEntity);
                 });
     }
 

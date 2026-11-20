@@ -3,6 +3,7 @@ package net.theiadraizer.komarumod.client.model.entity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.theiadraizer.komarumod.KomaruMod;
 import net.theiadraizer.komarumod.entity.KomaruEntity;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
@@ -15,15 +16,15 @@ public class KomaruModel extends GeoModel<KomaruEntity> {
     }
 
     public ResourceLocation getModelResource(KomaruEntity animatable) {
-        return new ResourceLocation("komarumod", "geo/komaru.geo.json");
+        return new ResourceLocation(KomaruMod.MOD_ID, "geo/komaru.geo.json");
     }
 
     public ResourceLocation getTextureResource(KomaruEntity animatable) {
-        return new ResourceLocation("komarumod", "textures/entity/komaru_texture.png");
+        return new ResourceLocation(KomaruMod.MOD_ID, "textures/entity/komaru_texture.png");
     }
 
     public ResourceLocation getAnimationResource(KomaruEntity animatable) {
-        return new ResourceLocation("komarumod", "animations/komaru.animation.json");
+        return new ResourceLocation(KomaruMod.MOD_ID, "animations/komaru.animation.json");
     }
 
     @Override
