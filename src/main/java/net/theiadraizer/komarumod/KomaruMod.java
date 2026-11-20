@@ -24,11 +24,7 @@ public class KomaruMod {
         GeckoLib.initialize();
     }
 
-    @Mod.EventBusSubscriber(
-            modid = MOD_ID,
-            bus = Mod.EventBusSubscriber.Bus.MOD,
-            value = Dist.CLIENT
-    )
+    @Mod.EventBusSubscriber(modid = MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
         public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {

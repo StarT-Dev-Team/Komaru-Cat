@@ -12,10 +12,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import net.theiadraizer.komarumod.KomaruMod;
 
-@Mod.EventBusSubscriber(
-        modid = KomaruMod.MOD_ID,
-        bus = Mod.EventBusSubscriber.Bus.MOD
-)
+@Mod.EventBusSubscriber(modid = KomaruMod.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class KomaruItems {
     public static final DeferredRegister<Item> ITEMS;
     public static final RegistryObject<Item> KOMARU_POWDER;
@@ -28,7 +25,9 @@ public class KomaruItems {
     static {
         ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, KomaruMod.MOD_ID);
         KOMARU_POWDER = ITEMS.register("komaru_powder", () -> new Item(new Item.Properties()));
-        KOMARU_SPAWN_EGG = ITEMS.register("komaru_spawn_egg", () -> new ForgeSpawnEggItem(KomaruEntityTypes.KOMARU, 0x22B281, 0x19746E, new Item.Properties()));
+        KOMARU_SPAWN_EGG = ITEMS.register(
+                "komaru_spawn_egg",
+                () -> new ForgeSpawnEggItem(KomaruEntityTypes.KOMARU, 0x22B281, 0x19746E, new Item.Properties()));
     }
 
     @SubscribeEvent

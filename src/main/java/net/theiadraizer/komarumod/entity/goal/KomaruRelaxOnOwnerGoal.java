@@ -1,5 +1,8 @@
 package net.theiadraizer.komarumod.entity.goal;
 
+import java.util.EnumSet;
+import java.util.Objects;
+import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -19,16 +22,15 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.theiadraizer.komarumod.entity.KomaruEntity;
 
-import javax.annotation.Nullable;
-import java.util.EnumSet;
-import java.util.Objects;
-
 public class KomaruRelaxOnOwnerGoal extends Goal {
     public final KomaruEntity entity;
+
     @Nullable
     private Player ownerPlayer;
+
     @Nullable
     private BlockPos goalPos;
+
     private int onBedTicks;
 
     public KomaruRelaxOnOwnerGoal(KomaruEntity entity) {
@@ -37,43 +39,42 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
     }
 
     public boolean canUse() {
-        if (!entity.isTame() || entity.isOrderedToSit())
-            return false;
+        if (!entity.isTame() || entity.isOrderedToSit()) return false;
 
         LivingEntity owner = entity.getOwner();
-        if (!(owner instanceof Player))
-            return false;
+        if (!(owner instanceof Player)) return false;
 
         ownerPlayer = (Player) owner;
-        if (!owner.isSleeping())
-            return false;
+        if (!owner.isSleeping()) return false;
 
-        if (entity.distanceToSqr(ownerPlayer) > 100.0)
-            return false;
+        if (entity.distanceToSqr(ownerPlayer) > 100.0) return false;
 
         BlockPos pos = ownerPlayer.blockPosition();
         BlockState state = entity.level().getBlockState(pos);
-        if (!state.is(BlockTags.BEDS))
-            return false;
+        if (!state.is(BlockTags.BEDS)) return false;
 
         this.goalPos = state.getOptionalValue(BedBlock.FACING)
                 .map(direction -> pos.relative(direction.getOpposite()))
                 .orElseGet(() -> new BlockPos(pos));
 
         return !spaceIsOccupied();
-
     }
 
     private boolean spaceIsOccupied() {
-        for (KomaruEntity other : entity.level().getEntitiesOfClass(KomaruEntity.class, new AABB(goalPos).inflate(2.0))) {
-            if (other != entity && other.isLying())
-                return true;
+        for (KomaruEntity other :
+                entity.level().getEntitiesOfClass(KomaruEntity.class, new AABB(goalPos).inflate(2.0))) {
+            if (other != entity && other.isLying()) return true;
         }
         return false;
     }
 
     public boolean canContinueToUse() {
-        return entity.isTame() && !entity.isOrderedToSit() && ownerPlayer != null && ownerPlayer.isSleeping() && goalPos != null && !spaceIsOccupied();
+        return entity.isTame()
+                && !entity.isOrderedToSit()
+                && ownerPlayer != null
+                && ownerPlayer.isSleeping()
+                && goalPos != null
+                && !spaceIsOccupied();
     }
 
     public void start() {
@@ -86,7 +87,11 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
     public void stop() {
         entity.setLying(false);
         float f = entity.level().getTimeOfDay(1.0F);
-        if (ownerPlayer != null && ownerPlayer.getSleepTimer() >= 100 && (double) f > 0.77 && (double) f < 0.8 && (double) entity.level().getRandom().nextFloat() < 0.7) {
+        if (ownerPlayer != null
+                && ownerPlayer.getSleepTimer() >= 100
+                && (double) f > 0.77
+                && (double) f < 0.8
+                && (double) entity.level().getRandom().nextFloat() < 0.7) {
             giveMorningGift();
         }
         onBedTicks = 0;
@@ -101,29 +106,34 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
         RandomSource random = this.entity.getRandom();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         pos.set(this.entity.blockPosition());
-        entity.randomTeleport(pos.getX() + random.nextInt(11) - 5, pos.getY() + random.nextInt(5) - 2, pos.getZ() + random.nextInt(11) - 5, false);
+        entity.randomTeleport(
+                pos.getX() + random.nextInt(11) - 5,
+                pos.getY() + random.nextInt(5) - 2,
+                pos.getZ() + random.nextInt(11) - 5,
+                false);
         pos.set(this.entity.blockPosition());
 
-        LootTable lootTable = Objects.requireNonNull(level.getServer()).getLootData().getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
+        LootTable lootTable = Objects.requireNonNull(level.getServer())
+                .getLootData()
+                .getLootTable(BuiltInLootTables.CAT_MORNING_GIFT);
         LootParams lootParams = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, this.entity.position())
                 .withParameter(LootContextParams.THIS_ENTITY, this.entity)
                 .create(LootContextParamSets.GIFT);
 
-        lootTable.getRandomItems(lootParams)
-                .forEach(stack -> {
-                    var itemEntity = new ItemEntity(level,
-                            (double) pos.getX() - (double) Mth.sin(this.entity.yBodyRot * 0.017453292F),
-                            pos.getY(),
-                            (double) pos.getZ() + (double) Mth.cos(this.entity.yBodyRot * 0.017453292F),
-                            stack);
-                    level.addFreshEntity(itemEntity);
-                });
+        lootTable.getRandomItems(lootParams).forEach(stack -> {
+            var itemEntity = new ItemEntity(
+                    level,
+                    (double) pos.getX() - (double) Mth.sin(this.entity.yBodyRot * 0.017453292F),
+                    pos.getY(),
+                    (double) pos.getZ() + (double) Mth.cos(this.entity.yBodyRot * 0.017453292F),
+                    stack);
+            level.addFreshEntity(itemEntity);
+        });
     }
 
     public void tick() {
-        if (ownerPlayer == null || goalPos == null)
-            return;
+        if (ownerPlayer == null || goalPos == null) return;
 
         entity.setInSittingPose(false);
         entity.getNavigation().moveTo(goalPos.getX(), goalPos.getY(), goalPos.getZ(), 1.100000023841858);
@@ -138,6 +148,5 @@ public class KomaruRelaxOnOwnerGoal extends Goal {
         } else {
             entity.setLying(false);
         }
-
     }
 }

@@ -43,8 +43,7 @@ public class KomaruLieGoal extends MoveToBlockGoal {
     }
 
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-        if (!level.isEmptyBlock(pos.above()))
-            return false;
+        if (!level.isEmptyBlock(pos.above())) return false;
 
         var state = level.getBlockState(pos);
         return state.is(BlockTags.BEDS) || state.is(BlockTags.WOOL_CARPETS) || state.is(BlockTags.WOOL);

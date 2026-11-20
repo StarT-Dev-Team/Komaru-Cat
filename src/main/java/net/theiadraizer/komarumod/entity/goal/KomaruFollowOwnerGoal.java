@@ -8,8 +8,13 @@ public class KomaruFollowOwnerGoal extends FollowOwnerGoal {
 
     private final KomaruEntity entity;
 
-    public KomaruFollowOwnerGoal(TamableAnimal tamable, double speedModifier, float startDistance, float stopDistance,
-            boolean canFly, KomaruEntity entity) {
+    public KomaruFollowOwnerGoal(
+            TamableAnimal tamable,
+            double speedModifier,
+            float startDistance,
+            float stopDistance,
+            boolean canFly,
+            KomaruEntity entity) {
         super(tamable, speedModifier, startDistance, stopDistance, canFly);
         this.entity = entity;
     }
@@ -23,5 +28,4 @@ public class KomaruFollowOwnerGoal extends FollowOwnerGoal {
     public boolean canContinueToUse() {
         return entity.isFollowing() && super.canContinueToUse();
     }
-    
 }

@@ -16,14 +16,39 @@ public class KomaruRenderer extends GeoEntityRenderer<KomaruEntity> {
     }
 
     @Override
-    public void preRender(PoseStack poseStack, KomaruEntity animatable, BakedGeoModel model, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void preRender(
+            PoseStack poseStack,
+            KomaruEntity animatable,
+            BakedGeoModel model,
+            MultiBufferSource bufferSource,
+            VertexConsumer buffer,
+            boolean isReRender,
+            float partialTick,
+            int packedLight,
+            int packedOverlay,
+            float red,
+            float green,
+            float blue,
+            float alpha) {
         if (animatable.isBaby()) {
             poseStack.scale(0.4F, 0.4F, 0.4F);
         } else {
             poseStack.scale(0.7F, 0.7F, 0.7F);
         }
 
-
-        super.preRender(poseStack, animatable, model, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.preRender(
+                poseStack,
+                animatable,
+                model,
+                bufferSource,
+                buffer,
+                isReRender,
+                partialTick,
+                packedLight,
+                packedOverlay,
+                red,
+                green,
+                blue,
+                alpha);
     }
 }

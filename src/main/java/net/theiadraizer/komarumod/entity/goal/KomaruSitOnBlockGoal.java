@@ -43,14 +43,15 @@ public class KomaruSitOnBlockGoal extends MoveToBlockGoal {
     }
 
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-        if (!level.isEmptyBlock(pos.above()))
-            return false;
+        if (!level.isEmptyBlock(pos.above())) return false;
 
         BlockState state = level.getBlockState(pos);
-        if (state.is(Blocks.CHEST))
-            return ChestBlockEntity.getOpenCount(level, pos) < 1;
+        if (state.is(Blocks.CHEST)) return ChestBlockEntity.getOpenCount(level, pos) < 1;
 
-        return state.is(Blocks.FURNACE) && state.getValue(FurnaceBlock.LIT) || state.is(BlockTags.BEDS, (otherState) ->
-                otherState.getOptionalValue(BedBlock.PART).map((part) -> part != BedPart.HEAD).orElse(true));
+        return state.is(Blocks.FURNACE) && state.getValue(FurnaceBlock.LIT)
+                || state.is(BlockTags.BEDS, (otherState) -> otherState
+                        .getOptionalValue(BedBlock.PART)
+                        .map((part) -> part != BedPart.HEAD)
+                        .orElse(true));
     }
 }

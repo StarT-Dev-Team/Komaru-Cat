@@ -28,8 +28,7 @@ public class ModEvents {
                     SpawnPlacements.Type.ON_GROUND,
                     Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
                     Animal::checkAnimalSpawnRules,
-                    SpawnPlacementRegisterEvent.Operation.REPLACE
-            );
+                    SpawnPlacementRegisterEvent.Operation.REPLACE);
         }
     }
 }
